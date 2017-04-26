@@ -8,6 +8,17 @@
 
 import UIKit
 
+extension UIView {
+    func cornerRadius(_ radius:CGFloat) {
+        let maskPath = UIBezierPath.init(roundedRect: self.bounds, cornerRadius: radius)
+        let maskLayer = CAShapeLayer.init()
+        maskLayer.frame = self.bounds
+        maskLayer.path = maskPath.cgPath
+        self.layer.mask = maskLayer
+        self.layer.backgroundColor = self.backgroundColor?.cgColor
+    }
+}
+
 class ItemView:UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         for view in self.subviews {
@@ -19,6 +30,7 @@ class ItemView:UIView {
         return nil
     }
 }
+
 enum Item {
     static var S = makeS()
     static var Z = makeZ()
@@ -89,6 +101,7 @@ enum Item {
 
     
 }
+
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -142,6 +155,7 @@ class ViewController: UIViewController {
             for j in 0..<col {
                 let view = UIView.init(frame: CGRect.init(x: left+width*CGFloat(i)+rspace*(CGFloat(i)-1), y: top+height*CGFloat(j)+cspace*(CGFloat(j)-1), width: width, height: height))
                 view.backgroundColor = color
+                view.cornerRadius(5)
                 views[i].append(view)
                 self.view.addSubview(view)
             }
