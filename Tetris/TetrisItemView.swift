@@ -9,7 +9,7 @@
 import UIKit
 
 
-enum TetrisItemEnum {
+enum TetrisItemEnum:Int {
     
     case S
     case Z
@@ -64,6 +64,16 @@ enum TetrisItemEnum {
 }
 
 extension TetrisItemView {
+    
+    static func randomBoxItem(point:CGPoint) -> TetrisItemView {
+        let count = TetrisItemEnum.allValues.count
+        let value = arc4random_uniform(UInt32(count))
+        let item = TetrisItemEnum.init(rawValue: Int(value))
+        let view =  makeTetrisItem(box: item!)
+        view.addPosition = point
+        return view
+    }
+    
     static func makeTetrisItem(main:TetrisItemEnum) -> TetrisItemView {
         return makeTetrisItem(shape:main,type: .Main)
     }
@@ -96,6 +106,7 @@ extension TetrisItemView {
 
 class TetrisItemView:UIView {
     var shape:TetrisItemEnum!
+    var addPosition:CGPoint?
     
     func clone() -> TetrisItemView {
         let view = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))! as! TetrisItemView
@@ -114,17 +125,26 @@ class TetrisItemView:UIView {
     }
     
     func zoom(type:TetrisMapType) {
-        UIView.animate(withDuration: 0.1) {
-            for i in 0..<self.shape.rowcol.count {
-                self.subviews[i].frame.origin.x = type.blockSize.width*CGFloat(self.shape.rowcol[i].row)+type.space*(CGFloat(self.shape.rowcol[i].row)-1)
-                self.subviews[i].frame.origin.y = type.blockSize.height*CGFloat(self.shape.rowcol[i].col)+type.space*(CGFloat(self.shape.rowcol[i].col)-1)
-                self.subviews[i].frame.size = type.blockSize
-            }
+        DispatchQueue.global().async {
             let width = type.blockSize.width * CGFloat(self.shape.backgroundSize.row)
-            self.frame.size = CGSize.init(width: width, height: width)
+            let height = type.blockSize.height * CGFloat(self.shape.backgroundSize.col)
+            
+            var arr = [(x:CGFloat,y:CGFloat)]()
+            for i in 0..<self.shape.rowcol.count {
+                let x = type.blockSize.width*CGFloat(self.shape.rowcol[i].row)+type.space*(CGFloat(self.shape.rowcol[i].row)-1)
+                let y = type.blockSize.height*CGFloat(self.shape.rowcol[i].col)+type.space*(CGFloat(self.shape.rowcol[i].col)-1)
+                arr.append((x,y))
+            }
+            DispatchQueue.main.async {
+                for i in 0..<self.shape.rowcol.count {
+                    self.subviews[i].frame.origin.x = arr[i].x
+                    self.subviews[i].frame.origin.y = arr[i].y
+                    self.subviews[i].frame.size = type.blockSize
+                }
+                self.frame.size = CGSize.init(width: width, height: height)
+            }
         }
     }
-    
 }
 
 

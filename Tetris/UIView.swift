@@ -9,21 +9,42 @@
 import UIKit
 
 extension UIView {
-    func cornerRadius(_ radius:CGFloat) {
-        let maskPath = UIBezierPath.init(roundedRect: self.bounds, cornerRadius: radius)
-        let maskLayer = CAShapeLayer.init()
-        maskLayer.frame = self.bounds
-        maskLayer.path = maskPath.cgPath
-        self.layer.mask = maskLayer
-        self.layer.backgroundColor = self.backgroundColor?.cgColor
-        
-        let borderLayer = CAShapeLayer()
-        borderLayer.path = maskLayer.path // Reuse the Bezier path
-        borderLayer.fillColor = UIColor.clear.cgColor
-        borderLayer.strokeColor = UIColor.gray.cgColor
-        borderLayer.lineWidth = 1
-        borderLayer.frame = self.bounds
-        self.layer.addSublayer(borderLayer)
+    private func kt_addCorner(radius: CGFloat,
+                      borderWidth: CGFloat,
+                      backgroundColor: UIColor,
+                      borderColor: UIColor) {
+        let image = kt_drawRectWithRoundedCorner(radius: radius,
+                                                 borderWidth: borderWidth,
+                                                 backgroundColor: backgroundColor,
+                                                 borderColor: borderColor)
+        let imageView = UIImageView(image: image)
+        self.insertSubview(imageView, at: 0)
+    }
+    
+    
+    private func kt_drawRectWithRoundedCorner(radius: CGFloat,
+                                      borderWidth: CGFloat,
+                                      backgroundColor: UIColor,
+                                      borderColor: UIColor) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, UIScreen.main.scale)
+        let context = UIGraphicsGetCurrentContext()
+        context?.setAlpha(1)
+        context?.setFillColor(backgroundColor.cgColor)
+        context?.fill(self.bounds)
+        let maskPath = UIBezierPath.init(roundedRect: self.bounds.insetBy(dx: 1, dy: 1), cornerRadius: radius)
+        context?.setStrokeColor(borderColor.cgColor)
+        maskPath.stroke()
+        maskPath.lineWidth = borderWidth
+        context?.addPath(maskPath.cgPath)
+        context?.drawPath(using: .fillStroke)
+        let output = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return output!
+    }
+    
+    
+    func cornerRadius(_ radius:CGFloat,borderWidth:CGFloat = 0,backgroundColor:UIColor = .clear ,borderColor:UIColor = .clear) {
+        kt_addCorner(radius: radius, borderWidth: borderWidth, backgroundColor: backgroundColor, borderColor: borderColor)
     }
     
         

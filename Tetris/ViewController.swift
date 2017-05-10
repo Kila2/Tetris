@@ -20,21 +20,26 @@ class ViewController: UIViewController {
         self.view.addSubview(tetrisMapView)
         self.view.addSubview(tetrisBoxView)
         
-        for shape in TetrisItemEnum.allValues {
-            let S = TetrisItemView.makeTetrisItem(main: shape)
-            tetrisMapView.addItem(shape: S, position: (0,0))
-            let ss = S.clone()
-            tetrisMapView.addItem(shape: ss, position: (2,2))
-            
-            let S2 = TetrisItemView.makeTetrisItem(box: shape)
-            
-            let panGest = UIPanGestureRecognizer.init(target: self, action: #selector(ViewController.itemTouch(_:)))
-            S2.addGestureRecognizer(panGest)
-            tetrisBoxView.addItem(shape: S2, position: (5,0))
-            
-            
-            tetrisBoxView.addItem(shape: S2.clone(), position: (3,3))
+        
+        for i in 1...3 {
+            addBoxRandomItemView(point: CGPoint.init(x: 1+5*(i-1), y: 0))
         }
+        
+        //        for shape in TetrisItemEnum.allValues {
+        //            let S = TetrisItemView.makeTetrisItem(main: shape)
+        //            tetrisMapView.addItem(shape: S, position: (0,0))
+        //            let ss = S.clone()
+        //            tetrisMapView.addItem(shape: ss, position: (2,2))
+        //
+        //            let S2 = TetrisItemView.makeTetrisItem(box: shape)
+        //
+        //            let panGest = UIPanGestureRecognizer.init(target: self, action: #selector(ViewController.itemTouch(_:)))
+        //            S2.addGestureRecognizer(panGest)
+        //            tetrisBoxView.addItem(shape: S2, position: (5,0))
+        //
+        //
+        //            tetrisBoxView.addItem(shape: S2.clone(), position: (2,2))
+        //        }
         
         //        tetrisMapView.addItem(shape: TetrisItemView.makeTetrisItem(shape: .I), rowcol: (0,2))
         //
@@ -47,43 +52,59 @@ class ViewController: UIViewController {
         //        drawBox()
     }
     
+    func addBoxRandomItemView(point:CGPoint) {
+        let item = TetrisItemView.randomBoxItem(point:point)
+        let panGest =  UIPanGestureRecognizer.init(target: self, action: #selector(ViewController.itemTouch(_:)))
+        let longGest = UILongPressGestureRecognizer.init(target: self, action: #selector(ViewController.itemTouch(_:)))
+        panGest.require(toFail: longGest)
+        item.addGestureRecognizer(longGest)
+        item.addGestureRecognizer(panGest)
+        _ = tetrisBoxView.addItem(shape: item)
+    }
     
-    func itemTouch(_ recognizer:UIPanGestureRecognizer) {
-        
+    
+    func itemTouch(_ recognizer:UIGestureRecognizer) {
+        print(NSStringFromClass(type(of: recognizer)))
         if recognizer.state == .ended || recognizer.state == .cancelled {
+            
             if let itemView = recognizer.view as? TetrisItemView {
                 var canPlace = true
                 if canPlace {
-                    let itemFrame = tetrisMapView.convert(itemView.frame, from: tetrisBoxView)
-                    if tetrisMapView.frame.contains(itemFrame) {
-                        let numX = Int(((itemFrame.minX)/(self.tetrisMapView.blockSize.width + tetrisMapView.space)))
-                        let x = CGFloat(numX)*(self.tetrisMapView.blockSize.width + tetrisMapView.space)
-                        let numY = Int(((itemFrame.minY)/(self.tetrisMapView.blockSize.height + tetrisMapView.space)))
-                        let y = CGFloat(numY)*(self.tetrisMapView.blockSize.height + tetrisMapView.space)
-                        let point = CGPoint.init(x: x, y: y)
-                        recognizer.view?.frame.origin = point
+                    let itemFrame = self.tetrisMapView.convert(itemView.frame, from: self.tetrisBoxView)
+                    let originFrame = self.tetrisMapView.bounds.insetBy(dx: -5, dy: -5)
+                    if originFrame.contains(itemFrame) {
+                        let numX = lroundf(Float(((itemFrame.minX)/(self.tetrisMapView.blockSize.width + self.tetrisMapView.space))))
+                        let numY = lroundf(Float(((itemFrame.minY)/(self.tetrisMapView.blockSize.height + self.tetrisMapView.space))))
                         
-                        tetrisMapView.addSubview(itemView)
+                        let originPoint = itemView.addPosition!
+                        itemView.addPosition = CGPoint.init(x: numX, y: numY)
+                        self.tetrisMapView.addItem(shape: itemView)
                         
+                        for (x,y) in itemView.shape.rowcol {
+                            self.tetrisBoxView.matrix[Int(originPoint.x)+x][Int(originPoint.y)+y] = .Empty
+                        }
+                        
+                        self.addBoxRandomItemView(point: originPoint)
                         for gest in itemView.gestureRecognizers! {
                             itemView.removeGestureRecognizer(gest)
                         }
                     }
                     else {
-                        UIView.animate(withDuration: 0.2, animations: { 
+                        UIView.animate(withDuration: 0.2, animations: {
+                            
                             itemView.frame.origin = self.originPoint
                             itemView.zoom(type: .Box)
                         })
-                        
                     }
                 }
                 else {
                     UIView.animate(withDuration: 0.2, animations: {
-                        itemView.frame.origin = self.originPoint
+                        DispatchQueue.main.async {
+                            itemView.frame.origin = self.originPoint
+                        }
                         itemView.zoom(type: .Box)
                     })
                 }
-                
             }
             return
         }
@@ -92,7 +113,7 @@ class ViewController: UIViewController {
             
             if let itemView = recognizer.view as? TetrisItemView {
                 itemView.zoom(type: .Main)
-                originPoint = itemView.frame.origin
+                self.originPoint = itemView.frame.origin
             }
             
             
@@ -100,9 +121,17 @@ class ViewController: UIViewController {
             //                self.view.bringSubview(toFront: ov)
             //            }
         }
-        let point=recognizer.location(in: self.tetrisBoxView)
-        recognizer.view?.center = point
+        UIView.animate(withDuration: 0.2, animations: {
+            let point=recognizer.location(in: self.tetrisBoxView)
+            recognizer.view?.center = point
+            
+        })
+        
+        
+        
     }
+    
+    
     
     
     override func didReceiveMemoryWarning() {

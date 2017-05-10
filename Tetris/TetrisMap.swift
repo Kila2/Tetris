@@ -59,7 +59,7 @@ enum TetrisMapType {
         case .Main:
             return 10
         case .Box:
-            return 15
+            return 16
         }
     }
     
@@ -68,7 +68,7 @@ enum TetrisMapType {
         case .Main:
             return 10
         case .Box:
-            return 6
+            return 4
         }
     }
     
@@ -127,7 +127,7 @@ class TetrisMapView:UIView {
             for j in 0..<col {
                 let view = UIView.init(frame: CGRect.init(x: blockSize.width*CGFloat(i)+space*(CGFloat(i)-1), y: blockSize.width*CGFloat(j)+space*(CGFloat(j)-1), width: blockSize.width, height: blockSize.height))
                 view.backgroundColor = color
-                view.cornerRadius(4)
+                view.cornerRadius(4, borderWidth: 2, backgroundColor: .white, borderColor: .black)
                 views[i].append(view)
                 self.addSubview(view)
             }
@@ -144,12 +144,12 @@ class TetrisMapView:UIView {
     }
     
     
-    func addItem(shape:TetrisItemView, position:(row:Int, col:Int)) -> Bool {
-        
+    func addItem(shape:TetrisItemView) -> Bool {
+        let positionx = Int(shape.addPosition!.x)
+        let positiony = Int(shape.addPosition!.y)
         var canPlace = true
         for (x,y) in shape.shape.rowcol {
-            print("rowcol.row+x \(position.row+x), rowcol.col+y \(position.col+y)")
-            if position.row+x<self.row && position.col+y<self.col && self.matrix[position.row+x][position.col+y] == .Empty {
+            if positionx+x<self.row && positiony+y<self.col && self.matrix[positionx+x][positiony+y] == .Empty {
                 continue
             }
             else {
@@ -162,12 +162,18 @@ class TetrisMapView:UIView {
             return canPlace
         }
         
-        shape.frame.origin.x = getX(position.row)
-        shape.frame.origin.y = getY(position.col)
-        self.addSubview(shape)
-        for (x,y) in shape.shape.rowcol {
-            self.matrix[position.row+x][position.col+y] = .Placed
+        DispatchQueue.main.async {
+            shape.frame.origin.x = self.getX(positionx)
+            shape.frame.origin.y = self.getY(positiony)
+            self.addSubview(shape)
+
         }
+        
+        for (x,y) in shape.shape.rowcol {
+            self.matrix[positionx+x][positiony+y] = .Placed
+        }
+        
         return canPlace
     }
+    
 }
