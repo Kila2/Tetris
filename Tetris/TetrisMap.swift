@@ -92,12 +92,20 @@ extension TetrisMapView {
     }
 }
 
+struct TetrisMapBlock {
+    var state:TetrisMapState!
+    weak var view:UIView?
+}
+
 class TetrisMapView:UIView {
     let col:Int!
     let row:Int!
-    var matrix:Array<Array<TetrisMapState>>!
+    var matrix:Array<Array<TetrisMapBlock>>!
     let space:CGFloat!
     var blockSize:CGSize!
+    
+    var lastAddPositionX:Set<Int> = Set<Int>()
+    var lastAddPositionY:Set<Int> = Set<Int>()
     
     init(row:Int, col:Int, space:CGFloat, blockSize:CGSize, frame:CGRect) {
         self.col = col
@@ -107,8 +115,8 @@ class TetrisMapView:UIView {
         
         super.init(frame: frame)
         
-        let colArray = Array<TetrisMapState>.init(repeating: .Empty, count: col)
-        self.matrix = Array<Array<TetrisMapState>>.init(repeating: colArray, count: row)
+        let colArray = Array<TetrisMapBlock>.init(repeating: TetrisMapBlock.init(state: .Empty, view: nil) , count: col)
+        self.matrix = Array<Array<TetrisMapBlock>>.init(repeating: colArray, count: row)
         _ = drawMap()
     }
     
@@ -142,38 +150,93 @@ class TetrisMapView:UIView {
     func getY(_ y:Int)->CGFloat {
         return CGFloat(y)*(blockSize.width + space)
     }
-    
-    
-    func addItem(shape:TetrisItemView) -> Bool {
-        let positionx = Int(shape.addPosition!.x)
-        let positiony = Int(shape.addPosition!.y)
-        var canPlace = true
+    func canPlace(shape:TetrisItemView, point:CGPoint) -> Bool {
+        let positionx = Int(point.x)
+        let positiony = Int(point.y)
         for (x,y) in shape.shape.rowcol {
-            if positionx+x<self.row && positiony+y<self.col && self.matrix[positionx+x][positiony+y] == .Empty {
+            if positionx+x<self.row && positiony+y<self.col && self.matrix[positionx+x][positiony+y].state == .Empty {
                 continue
             }
             else {
-                canPlace = false
-                break
+                return false
             }
         }
+        return true
+    }
+    
+    func addItem(shape:TetrisItemView,point:CGPoint) {
         
-        guard canPlace else {
-            return canPlace
+        let positionx = Int(point.x)
+        let positiony = Int(point.y)
+        
+        shape.frame.origin.x = self.getX(positionx)
+        shape.frame.origin.y = self.getY(positiony)
+        self.addSubview(shape)
+        
+        lastAddPositionX.removeAll()
+        lastAddPositionY.removeAll()
+        
+        for view in shape.subviews {
+            if let block = view as? TetrisItemBlockView {
+                let x = Int(block.tetrisPoint.x)
+                let y = Int(block.tetrisPoint.y)
+                self.matrix[positionx+x][positiony+y].state = .Placed
+                self.matrix[positionx+x][positiony+y].view = view
+                lastAddPositionX.insert(positionx+x)
+                lastAddPositionY.insert(positiony+y)
+            }
         }
-        
-        DispatchQueue.main.async {
-            shape.frame.origin.x = self.getX(positionx)
-            shape.frame.origin.y = self.getY(positiony)
-            self.addSubview(shape)
-
+    }
+    
+    //判断能否消除
+    func checkClean() {
+        //判断y轴
+        var cleanLine = true
+        for x in lastAddPositionX {
+            cleanLine = true
+            for i in 0..<matrix.count {
+                if self.matrix[x][i].state == .Empty {
+                    cleanLine = false
+                    break
+                }
+            }
+            if cleanLine {
+                //移除view 清空tetrisMapView矩阵
+                print("remove")
+                for i in 0..<matrix.count {
+                    let sv = self.matrix[x][i].view?.superview
+                    self.matrix[x][i].view?.removeFromSuperview()
+                    self.matrix[x][i].state = .Empty
+                    if sv?.subviews.count == 0 {
+                        sv?.removeFromSuperview()
+                    }
+                }
+            }
         }
+        //判断x轴
         
-        for (x,y) in shape.shape.rowcol {
-            self.matrix[positionx+x][positiony+y] = .Placed
+        for y in lastAddPositionY {
+            cleanLine = true
+            for i in 0..<matrix[0].count {
+                if self.matrix[i][y].state == .Empty {
+                    cleanLine = false
+                    break
+                }
+            }
+            if cleanLine {
+                //移除view 清空tetrisMapView矩阵
+                print("remove")
+                for i in 0..<matrix[0].count {
+                    let sv = self.matrix[i][y].view?.superview
+                    self.matrix[i][y].view?.removeFromSuperview()
+                    self.matrix[i][y].state = .Empty
+                    if sv?.subviews.count == 0 {
+                        sv?.removeFromSuperview()
+                    }
+                }
+                
+            }
         }
-        
-        return canPlace
     }
     
 }

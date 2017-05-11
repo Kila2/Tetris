@@ -63,6 +63,10 @@ enum TetrisItemEnum:Int {
     static let allValues = [S, Z, L, J, I, O, T]
 }
 
+class TetrisItemBlockView:UIView {
+    var tetrisPoint:CGPoint!
+}
+
 extension TetrisItemView {
     
     static func randomBoxItem(point:CGPoint) -> TetrisItemView {
@@ -70,7 +74,6 @@ extension TetrisItemView {
         let value = arc4random_uniform(UInt32(count))
         let item = TetrisItemEnum.init(rawValue: Int(value))
         let view =  makeTetrisItem(box: item!)
-        view.addPosition = point
         return view
     }
     
@@ -94,7 +97,8 @@ extension TetrisItemView {
         
         for (i,j) in shape.rowcol  {
             let rect = CGRect.init(x: width*CGFloat(i)+space*(CGFloat(i)-1), y: height*CGFloat(j)+space*(CGFloat(j)-1), width: width, height: height);
-            let view = UIView.init(frame: rect)
+            let view = TetrisItemBlockView.init(frame: rect)
+            view.tetrisPoint = CGPoint.init(x: i, y: j)
             view.backgroundColor = shape.color
             bgview.addSubview(view)
         }
@@ -106,7 +110,7 @@ extension TetrisItemView {
 
 class TetrisItemView:UIView {
     var shape:TetrisItemEnum!
-    var addPosition:CGPoint?
+    
     
     func clone() -> TetrisItemView {
         let view = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))! as! TetrisItemView
@@ -116,8 +120,7 @@ class TetrisItemView:UIView {
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         for view in self.subviews {
-            if point.x > view.frame.minX && point.x < view.frame.maxX
-                && point.y > view.frame.minY && point.y < view.frame.maxY {
+            if view.frame.insetBy(dx: -5, dy: -5).contains(point) {
                 return view
             }
         }
