@@ -26,7 +26,7 @@ extension UIView {
                                       borderWidth: CGFloat,
                                       backgroundColor: UIColor,
                                       borderColor: UIColor) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, UIScreen.main.scale)
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, true, UIScreen.main.scale)
         let context = UIGraphicsGetCurrentContext()
         context?.setAlpha(1)
         context?.setFillColor(backgroundColor.cgColor)

@@ -18,6 +18,9 @@ enum TetrisItemEnum:Int {
     case I
     case O
     case T
+    case I4
+    case I2
+    case O1
     
     var rowcol_origin:[(row:Int,col:Int)] {
         switch self {
@@ -28,6 +31,9 @@ enum TetrisItemEnum:Int {
         case .I: return [(0,0),(0,1),(0,2),(0,3)]
         case .O: return [(0,0),(0,1),(1,0),(1,1)]
         case .T: return [(0,0),(1,0),(2,0),(1,1)]
+        case .I4: return [(0,0)]
+        case .I2: return [(0,0),(0,1)]
+        case .O1: return [(0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2)]
         default:
             return []
         }
@@ -42,6 +48,9 @@ enum TetrisItemEnum:Int {
         case .I: return (1,4)
         case .O: return (2,2)
         case .T: return (3,2)
+        case .I4: return (1,1)
+        case .I2: return (1,2)
+        case .O1: return (3,3)
         default:
             return (0,0)
         }
@@ -55,12 +64,15 @@ enum TetrisItemEnum:Int {
         case .I: return UIColor.init(hexString: "#FA6464FF")!
         case .O: return UIColor.init(hexString: "#22BFADFF")!
         case .T: return UIColor.init(hexString: "#FC80C3FF")!
+        case .I4: return UIColor.init(hexString: "#FC30C3FF")!
+        case .I2: return UIColor.init(hexString: "#DB30C3FF")!
+        case .O1: return UIColor.init(hexString: "#22BF64FF")!
         default:
             return .white
         }
     }
     
-    static let allValues = [S, Z, L, J, I, O, T]
+    static let allValues = [S, Z, L, J, I, O, T, I4, I2, O1]
 }
 
 struct TetrisPoint {
@@ -88,9 +100,10 @@ extension TetrisItemView {
         let value = arc4random_uniform(UInt32(count))
         let item = TetrisItemEnum.init(rawValue: Int(value))
         let view =  makeTetrisItem(box: item!)
-       // view.backgroundColor = .black
+        //view.backgroundColor = .black
         var minx:Int = 0
         var miny:Int = 0
+        
         view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
             let element = element as! TetrisItemBlockView
             let x = element.tetrisPoint.x
@@ -103,6 +116,7 @@ extension TetrisItemView {
             minx = x0 < minx ? x0 : minx
             miny = y0 < miny ? y0 : miny
         }
+        //平移
         if minx < 0 {
             let movex = Int(abs(minx))
             view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
@@ -112,7 +126,7 @@ extension TetrisItemView {
                 element.tetrisPoint = TetrisPoint.init(x: x0, y: y0)
             }
         }
-        
+        //平移
         if Int(miny) < 0 {
             let movey = abs(miny)
             view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
@@ -122,13 +136,13 @@ extension TetrisItemView {
                 element.tetrisPoint = TetrisPoint.init(x: x0, y: y0)
             }
         }
-        
+        //调整view
         view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
             let element = element as! TetrisItemBlockView
             element.frame.origin.x = CGFloat(element.tetrisPoint.x) * TetrisMapType.Box.blockSize.width + CGFloat(element.tetrisPoint.x - 1) * TetrisMapType.Box.space
             element.frame.origin.y = CGFloat(element.tetrisPoint.y) * TetrisMapType.Box.blockSize.width + CGFloat(element.tetrisPoint.y - 1) * TetrisMapType.Box.space
         }
-        
+        //调整view
         if direct == 1 || direct == 3 {
             view.frame.size = CGSize.init(width: view.frame.size.height, height: view.frame.size.width)
         }
@@ -196,9 +210,9 @@ class TetrisItemView:UIView {
     
     func zoom(type:TetrisMapType) {
         var arr = [(x:CGFloat,y:CGFloat)]()
-        //算出放大后的坐标
         var maxx = 0
         var maxy = 0
+        
         for i in 0..<self.subviews.count {
             let blockview = self.subviews[i] as! TetrisItemBlockView
             let x = type.blockSize.width*CGFloat(blockview.tetrisPoint.x)+type.space*(CGFloat(blockview.tetrisPoint.x)-1)
@@ -212,6 +226,7 @@ class TetrisItemView:UIView {
             self.subviews[i].frame.origin.y = arr[i].y
             self.subviews[i].frame.size = type.blockSize
         }
+        //行数与列数
         maxy += 1
         maxx += 1
         let width = CGFloat(maxx) * type.blockSize.width + CGFloat(maxx - 1) * type.space
