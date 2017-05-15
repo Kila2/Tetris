@@ -19,7 +19,7 @@ enum TetrisItemEnum:Int {
     case O
     case T
     
-    var rowcol:[(row:Int,col:Int)] {
+    var rowcol_origin:[(row:Int,col:Int)] {
         switch self {
         case .S: return [(1,0),(2,0),(0,1),(1,1)]
         case .Z: return [(0,0),(1,0),(1,1),(2,1)]
@@ -63,17 +63,60 @@ enum TetrisItemEnum:Int {
     static let allValues = [S, Z, L, J, I, O, T]
 }
 
+struct TetrisPoint {
+    var x:Int
+    var y:Int
+}
 class TetrisItemBlockView:UIView {
-    var tetrisPoint:CGPoint!
+    var tetrisPoint:TetrisPoint!
 }
 
 extension TetrisItemView {
     
     static func randomBoxItem(point:CGPoint) -> TetrisItemView {
+        let direct = arc4random_uniform(4)
         let count = TetrisItemEnum.allValues.count
         let value = arc4random_uniform(UInt32(count))
         let item = TetrisItemEnum.init(rawValue: Int(value))
         let view =  makeTetrisItem(box: item!)
+        view.backgroundColor = .black
+        view.transform = view.transform.rotated(by: (CGFloat.pi/2) * CGFloat(direct))
+        view.direct = direct
+ 
+        var minx:Int = 0
+        var miny:Int = 0
+        view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
+            let element = element as! TetrisItemBlockView
+            let x = element.tetrisPoint.x
+            let y = element.tetrisPoint.y
+            let angle = (CGFloat.pi/2) * CGFloat(direct)
+            let x0 = (x-(-1))*cos(angle) - (y-(-1))*sin(angle) + (-1)
+            let y0 = (x-(-1))*sin(angle) + (y-(-1))*cos(angle) + (-1)
+            element.tetrisPoint = CGPoint.init(x: x0, y: y0)
+            minx = x0 < minx ? x0 : minx
+            miny = y0 < miny ? y0 : miny
+        }
+        if minx < 0 {
+            let movex = Int(abs(minx))
+            view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
+                let element = element as! TetrisItemBlockView
+                let x0 = element.tetrisPoint.x + movex
+                let y0 = element.tetrisPoint.y
+                element.tetrisPoint = CGPoint.init(x: x0, y: y0)
+
+            }
+        }
+        
+        if Int(miny) < 0 {
+            let movey = abs(miny)
+            view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
+                let element = element as! TetrisItemBlockView
+                let x0 = element.tetrisPoint.x
+                let y0 = element.tetrisPoint.y + movey
+                element.tetrisPoint = CGPoint.init(x: x0, y: y0)
+                print(element.tetrisPoint)
+            }
+        }
         return view
     }
     
@@ -95,10 +138,10 @@ extension TetrisItemView {
         
         bgview.shape = shape
         
-        for (i,j) in shape.rowcol  {
+        for (i,j) in bgview.shape.rowcol_origin  {
             let rect = CGRect.init(x: width*CGFloat(i)+space*(CGFloat(i)-1), y: height*CGFloat(j)+space*(CGFloat(j)-1), width: width, height: height);
             let view = TetrisItemBlockView.init(frame: rect)
-            view.tetrisPoint = CGPoint.init(x: i, y: j)
+            view.tetrisPoint = TetrisPoint.init(x: i, y: j)
             view.backgroundColor = shape.color
             bgview.addSubview(view)
         }
@@ -110,8 +153,7 @@ extension TetrisItemView {
 
 class TetrisItemView:UIView {
     var shape:TetrisItemEnum!
-    
-    
+    var direct:UInt32 = 0
     func clone() -> TetrisItemView {
         let view = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))! as! TetrisItemView
         view.shape = self.shape
@@ -133,18 +175,20 @@ class TetrisItemView:UIView {
             let height = type.blockSize.height * CGFloat(self.shape.backgroundSize.col)
             
             var arr = [(x:CGFloat,y:CGFloat)]()
-            for i in 0..<self.shape.rowcol.count {
-                let x = type.blockSize.width*CGFloat(self.shape.rowcol[i].row)+type.space*(CGFloat(self.shape.rowcol[i].row)-1)
-                let y = type.blockSize.height*CGFloat(self.shape.rowcol[i].col)+type.space*(CGFloat(self.shape.rowcol[i].col)-1)
+            //算出放大后的坐标
+            for i in 0..<self.subviews.count {
+                let blockview = self.subviews[i] as! TetrisItemBlockView
+                let x = type.blockSize.width*CGFloat(blockview.tetrisPoint.x)+type.space*(CGFloat(blockview.tetrisPoint.x)-1)
+                let y = type.blockSize.height*CGFloat(blockview.tetrisPoint.y)+type.space*(CGFloat(blockview.tetrisPoint.y)-1)
                 arr.append((x,y))
             }
             DispatchQueue.main.async {
-                for i in 0..<self.shape.rowcol.count {
+                for i in 0..<self.subviews.count {
                     self.subviews[i].frame.origin.x = arr[i].x
                     self.subviews[i].frame.origin.y = arr[i].y
                     self.subviews[i].frame.size = type.blockSize
                 }
-                self.frame.size = CGSize.init(width: width, height: height)
+                self.frame.size = self.direct==0||self.direct==2 ?CGSize.init(width: width, height: height):CGSize.init(width: height, height: width)
             }
         }
     }

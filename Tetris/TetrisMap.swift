@@ -153,7 +153,10 @@ class TetrisMapView:UIView {
     func canPlace(shape:TetrisItemView, point:CGPoint) -> Bool {
         let positionx = Int(point.x)
         let positiony = Int(point.y)
-        for (x,y) in shape.shape.rowcol {
+        for blockview in shape.subviews {
+            let blockview = blockview as! TetrisItemBlockView
+            let x = Int(blockview.tetrisPoint.x)
+            let y = Int(blockview.tetrisPoint.y)
             if positionx+x<self.row && positiony+y<self.col && self.matrix[positionx+x][positiony+y].state == .Empty {
                 continue
             }

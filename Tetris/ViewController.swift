@@ -78,7 +78,10 @@ class ViewController: UIViewController {
                     //清空tetrisBoxView矩阵
                     let originNumx = lroundf(Float(((self.originFrame.minX)/(self.tetrisBoxView.blockSize.width + self.tetrisBoxView.space))))
                     let originNumy = lroundf(Float(((self.originFrame.minY)/(self.tetrisBoxView.blockSize.height + self.tetrisBoxView.space))))
-                    for (x,y) in itemView.shape.rowcol {
+                    for blockview in itemView.subviews {
+                        let bvc = blockview as! TetrisItemBlockView
+                        let x = Int(bvc.tetrisPoint.x)
+                        let y = Int(bvc.tetrisPoint.y)
                         self.tetrisBoxView.matrix[originNumx+x][originNumy+y].state = .Empty
                     }
                     

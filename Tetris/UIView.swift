@@ -46,6 +46,5 @@ extension UIView {
     func cornerRadius(_ radius:CGFloat,borderWidth:CGFloat = 0,backgroundColor:UIColor = .clear ,borderColor:UIColor = .clear) {
         kt_addCorner(radius: radius, borderWidth: borderWidth, backgroundColor: backgroundColor, borderColor: borderColor)
     }
-    
         
 }
