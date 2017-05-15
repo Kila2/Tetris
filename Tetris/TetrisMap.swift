@@ -136,6 +136,7 @@ class TetrisMapView:UIView {
                 let view = UIView.init(frame: CGRect.init(x: blockSize.width*CGFloat(i)+space*(CGFloat(i)-1), y: blockSize.width*CGFloat(j)+space*(CGFloat(j)-1), width: blockSize.width, height: blockSize.height))
                 view.backgroundColor = color
                 view.cornerRadius(4, borderWidth: 2, backgroundColor: .white, borderColor: .black)
+                //view.layer.shouldRasterize = true
                 views[i].append(view)
                 self.addSubview(view)
             }

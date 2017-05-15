@@ -67,7 +67,7 @@ class GameViewController: UIViewController {
         if recognizer.state == .ended || recognizer.state == .cancelled {
             if let itemView = recognizer.view as? TetrisItemView {
                 let itemFrame = self.tetrisMapView.convert(itemView.frame, from: self.tetrisBoxView)
-                let originFrame = self.tetrisMapView.bounds.insetBy(dx: -5, dy: -5)
+                let originFrame = self.tetrisMapView.bounds.insetBy(dx: -10, dy: -10)
                 
                 let numX = lroundf(Float(((itemFrame.minX)/(self.tetrisMapView.blockSize.width + self.tetrisMapView.space))))
                 let numY = lroundf(Float(((itemFrame.minY)/(self.tetrisMapView.blockSize.height + self.tetrisMapView.space))))

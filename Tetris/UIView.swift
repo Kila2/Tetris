@@ -17,6 +17,7 @@ extension UIView {
                                                  borderWidth: borderWidth,
                                                  backgroundColor: backgroundColor,
                                                  borderColor: borderColor)
+        
         let imageView = UIImageView(image: image)
         self.insertSubview(imageView, at: 0)
     }
