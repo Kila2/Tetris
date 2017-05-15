@@ -69,6 +69,15 @@ struct TetrisPoint {
 }
 class TetrisItemBlockView:UIView {
     var tetrisPoint:TetrisPoint!
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 }
 
 extension TetrisItemView {
@@ -79,10 +88,7 @@ extension TetrisItemView {
         let value = arc4random_uniform(UInt32(count))
         let item = TetrisItemEnum.init(rawValue: Int(value))
         let view =  makeTetrisItem(box: item!)
-        view.backgroundColor = .black
-        view.transform = view.transform.rotated(by: (CGFloat.pi/2) * CGFloat(direct))
-        view.direct = direct
- 
+       // view.backgroundColor = .black
         var minx:Int = 0
         var miny:Int = 0
         view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
@@ -90,9 +96,10 @@ extension TetrisItemView {
             let x = element.tetrisPoint.x
             let y = element.tetrisPoint.y
             let angle = (CGFloat.pi/2) * CGFloat(direct)
-            let x0 = (x-(-1))*cos(angle) - (y-(-1))*sin(angle) + (-1)
-            let y0 = (x-(-1))*sin(angle) + (y-(-1))*cos(angle) + (-1)
-            element.tetrisPoint = CGPoint.init(x: x0, y: y0)
+            //坐标点相对（-1，-1）旋转
+            let x0 = (x+1) * Int(cos(angle)) - (y+1) * Int(sin(angle)) - 1
+            let y0 = (x+1) * Int(sin(angle)) + (y+1) * Int(cos(angle)) - 1
+            element.tetrisPoint = TetrisPoint.init(x: x0, y: y0)
             minx = x0 < minx ? x0 : minx
             miny = y0 < miny ? y0 : miny
         }
@@ -102,8 +109,7 @@ extension TetrisItemView {
                 let element = element as! TetrisItemBlockView
                 let x0 = element.tetrisPoint.x + movex
                 let y0 = element.tetrisPoint.y
-                element.tetrisPoint = CGPoint.init(x: x0, y: y0)
-
+                element.tetrisPoint = TetrisPoint.init(x: x0, y: y0)
             }
         }
         
@@ -113,10 +119,20 @@ extension TetrisItemView {
                 let element = element as! TetrisItemBlockView
                 let x0 = element.tetrisPoint.x
                 let y0 = element.tetrisPoint.y + movey
-                element.tetrisPoint = CGPoint.init(x: x0, y: y0)
-                print(element.tetrisPoint)
+                element.tetrisPoint = TetrisPoint.init(x: x0, y: y0)
             }
         }
+        
+        view.subviews.enumerated().forEach { (offset: Int, element: UIView) in
+            let element = element as! TetrisItemBlockView
+            element.frame.origin.x = CGFloat(element.tetrisPoint.x) * TetrisMapType.Box.blockSize.width + CGFloat(element.tetrisPoint.x - 1) * TetrisMapType.Box.space
+            element.frame.origin.y = CGFloat(element.tetrisPoint.y) * TetrisMapType.Box.blockSize.width + CGFloat(element.tetrisPoint.y - 1) * TetrisMapType.Box.space
+        }
+        
+        if direct == 1 || direct == 3 {
+            view.frame.size = CGSize.init(width: view.frame.size.height, height: view.frame.size.width)
+        }
+        
         return view
     }
     
@@ -152,6 +168,15 @@ extension TetrisItemView {
 }
 
 class TetrisItemView:UIView {
+    var subviewPoints:[TetrisPoint] {
+        var points = [TetrisPoint]()
+        for view in self.subviews {
+            let blockview = view as! TetrisItemBlockView
+            points.append(blockview.tetrisPoint)
+        }
+        return points
+    }
+    
     var shape:TetrisItemEnum!
     var direct:UInt32 = 0
     func clone() -> TetrisItemView {
@@ -170,28 +195,32 @@ class TetrisItemView:UIView {
     }
     
     func zoom(type:TetrisMapType) {
-        DispatchQueue.global().async {
-            let width = type.blockSize.width * CGFloat(self.shape.backgroundSize.row)
-            let height = type.blockSize.height * CGFloat(self.shape.backgroundSize.col)
-            
-            var arr = [(x:CGFloat,y:CGFloat)]()
-            //算出放大后的坐标
-            for i in 0..<self.subviews.count {
-                let blockview = self.subviews[i] as! TetrisItemBlockView
-                let x = type.blockSize.width*CGFloat(blockview.tetrisPoint.x)+type.space*(CGFloat(blockview.tetrisPoint.x)-1)
-                let y = type.blockSize.height*CGFloat(blockview.tetrisPoint.y)+type.space*(CGFloat(blockview.tetrisPoint.y)-1)
-                arr.append((x,y))
-            }
-            DispatchQueue.main.async {
-                for i in 0..<self.subviews.count {
-                    self.subviews[i].frame.origin.x = arr[i].x
-                    self.subviews[i].frame.origin.y = arr[i].y
-                    self.subviews[i].frame.size = type.blockSize
-                }
-                self.frame.size = self.direct==0||self.direct==2 ?CGSize.init(width: width, height: height):CGSize.init(width: height, height: width)
-            }
+        var arr = [(x:CGFloat,y:CGFloat)]()
+        //算出放大后的坐标
+        var maxx = 0
+        var maxy = 0
+        for i in 0..<self.subviews.count {
+            let blockview = self.subviews[i] as! TetrisItemBlockView
+            let x = type.blockSize.width*CGFloat(blockview.tetrisPoint.x)+type.space*(CGFloat(blockview.tetrisPoint.x)-1)
+            let y = type.blockSize.height*CGFloat(blockview.tetrisPoint.y)+type.space*(CGFloat(blockview.tetrisPoint.y)-1)
+            maxx = blockview.tetrisPoint.x > maxx ? blockview.tetrisPoint.x : maxx
+            maxy = blockview.tetrisPoint.y > maxy ? blockview.tetrisPoint.y : maxy
+            arr.append((x,y))
         }
+        for i in (0..<self.subviews.count).reversed() {
+            self.subviews[i].frame.origin.x = arr[i].x
+            self.subviews[i].frame.origin.y = arr[i].y
+            self.subviews[i].frame.size = type.blockSize
+        }
+        maxy += 1
+        maxx += 1
+        let width = CGFloat(maxx) * type.blockSize.width + CGFloat(maxx - 1) * type.space
+        let height = CGFloat(maxy) * type.blockSize.width + CGFloat(maxy - 1) * type.space
+        
+        self.frame.size = CGSize.init(width: width, height: height)
+        
     }
+    
 }
 
 
