@@ -13,5 +13,3 @@ enum Global {
     static let screen = UIScreen.main.bounds
     static let mainBackgroundColor = UIColor.init(hexString: "#F9F9F9FF")
 }
-
-

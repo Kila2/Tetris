@@ -10,9 +10,9 @@ import UIKit
 
 extension UIView {
     private func kt_addCorner(radius: CGFloat,
-                      borderWidth: CGFloat,
-                      backgroundColor: UIColor,
-                      borderColor: UIColor) {
+                              borderWidth: CGFloat,
+                              backgroundColor: UIColor,
+                              borderColor: UIColor) {
         let image = kt_drawRectWithRoundedCorner(radius: radius,
                                                  borderWidth: borderWidth,
                                                  backgroundColor: backgroundColor,
@@ -22,11 +22,10 @@ extension UIView {
         self.insertSubview(imageView, at: 0)
     }
     
-    
     private func kt_drawRectWithRoundedCorner(radius: CGFloat,
-                                      borderWidth: CGFloat,
-                                      backgroundColor: UIColor,
-                                      borderColor: UIColor) -> UIImage {
+                                              borderWidth: CGFloat,
+                                              backgroundColor: UIColor,
+                                              borderColor: UIColor) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, true, UIScreen.main.scale)
         let context = UIGraphicsGetCurrentContext()
         context?.setAlpha(1)
@@ -38,14 +37,13 @@ extension UIView {
         maskPath.lineWidth = borderWidth
         context?.addPath(maskPath.cgPath)
         context?.drawPath(using: .fillStroke)
-        let output = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
+        let output = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
         return output!
     }
     
-    
-    func cornerRadius(_ radius:CGFloat,borderWidth:CGFloat = 0,backgroundColor:UIColor = .clear ,borderColor:UIColor = .clear) {
-        kt_addCorner(radius: radius, borderWidth: borderWidth, backgroundColor: backgroundColor, borderColor: borderColor)
+    func cornerRadius(_ radius: CGFloat, borderWidth: CGFloat = 0, backgroundColor: UIColor = .clear, borderColor: UIColor = .clear) {
+        self.kt_addCorner(radius: radius, borderWidth: borderWidth, backgroundColor: backgroundColor, borderColor: borderColor)
     }
-        
+    
 }

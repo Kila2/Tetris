@@ -33,8 +33,5 @@ extension UIViewController {
         
         let viewControllerName = NSStringFromClass(type(of: self))
         print("didReceiveMemoryWarning: \(viewControllerName)")
-    } 
+    }
 }
-
-
-
