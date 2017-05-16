@@ -12,6 +12,7 @@
 		9B16FB1F1EB2E2EE00A12A3F /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B16FB1E1EB2E2EE00A12A3F /* UIView.swift */; };
 		9B16FB771EC2B3A300A12A3F /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B16FB761EC2B3A300A12A3F /* UIViewController.swift */; };
 		9BDBF2791EC986A200BA1AEC /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BDBF2781EC986A200BA1AEC /* GameViewController.swift */; };
+		9BDBF27B1ECADC4000BA1AEC /* GameOverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BDBF27A1ECADC4000BA1AEC /* GameOverView.swift */; };
 		9BFD063A1EAF3B9F00C1A57C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFD06391EAF3B9F00C1A57C /* AppDelegate.swift */; };
 		9BFD063C1EAF3B9F00C1A57C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFD063B1EAF3B9F00C1A57C /* ViewController.swift */; };
 		9BFD063F1EAF3B9F00C1A57C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BFD063D1EAF3B9F00C1A57C /* Main.storyboard */; };
@@ -27,6 +28,7 @@
 		9B16FB1E1EB2E2EE00A12A3F /* UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		9B16FB761EC2B3A300A12A3F /* UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		9BDBF2781EC986A200BA1AEC /* GameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		9BDBF27A1ECADC4000BA1AEC /* GameOverView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameOverView.swift; sourceTree = "<group>"; };
 		9BFD06361EAF3B9F00C1A57C /* Tetris.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tetris.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BFD06391EAF3B9F00C1A57C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9BFD063B1EAF3B9F00C1A57C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 				9BFD064B1EAF3C6100C1A57C /* Global.swift */,
 				9B16FB1A1EB2DFCF00A12A3F /* TetrisMap.swift */,
 				9B16FB1C1EB2E1A300A12A3F /* TetrisItemView.swift */,
+				9BDBF27A1ECADC4000BA1AEC /* GameOverView.swift */,
 			);
 			path = Tetris;
 			sourceTree = "<group>";
@@ -166,6 +169,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BDBF27B1ECADC4000BA1AEC /* GameOverView.swift in Sources */,
 				9BFD064C1EAF3C6100C1A57C /* Global.swift in Sources */,
 				9B16FB1B1EB2DFCF00A12A3F /* TetrisMap.swift in Sources */,
 				9BFD064F1EAF3CCB00C1A57C /* UIColor.swift in Sources */,

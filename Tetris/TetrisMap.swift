@@ -167,7 +167,7 @@ class TetrisMapView: UIView {
         return true
     }
     
-    func addItem(shape: TetrisItemView, point: CGPoint) {
+    func addItem(shape: TetrisItemView, point: TetrisPoint) {
         
         let positionx = Int(point.x)
         let positiony = Int(point.y)

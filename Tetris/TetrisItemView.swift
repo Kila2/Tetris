@@ -93,7 +93,7 @@ class TetrisItemBlockView: UIView {
 
 extension TetrisItemView {
     
-    static func randomBoxItem(point: CGPoint) -> TetrisItemView {
+    static func randomBoxItem(point: TetrisPoint) -> TetrisItemView {
         let direct = arc4random_uniform(4)
         let count = TetrisItemEnum.allValues.count
         let value = arc4random_uniform(UInt32(count))
