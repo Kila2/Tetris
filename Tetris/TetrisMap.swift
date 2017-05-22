@@ -82,10 +82,13 @@ extension TetrisMapView {
         var tetrisMapView: TetrisMapView!
         switch type {
         case .Main:
-            tetrisMapView = TetrisMapView.init(row: type.row, col: type.col, space: type.space, blockSize: type.blockSize, frame: type.rect)
+            tetrisMapView = TetrisMapView.init(row: type.row, col: type.col, space: type.space, blockSize: type.blockSize, frame: type.rect) { view in
+                view.cornerRadius(4, borderWidth: 2, backgroundColor: .white, borderColor: .black)
+            }
             break
         case .Box:
-            tetrisMapView = TetrisMapView.init(row: type.row, col: type.col, space: type.space, blockSize: type.blockSize, frame: type.rect)
+            tetrisMapView = TetrisMapView.init(row: type.row, col: type.col, space: type.space, blockSize: type.blockSize, frame: type.rect) { view in
+            }
             break
         }
         return tetrisMapView
@@ -97,6 +100,8 @@ struct TetrisMapBlock {
     weak var view: UIView?
 }
 
+typealias ViewType = (_ view:UIView)->Void
+
 class TetrisMapView: UIView {
     let col: Int!
     let row: Int!
@@ -105,18 +110,20 @@ class TetrisMapView: UIView {
     var lastAddPositionX: Set<Int> = Set<Int>()
     var lastAddPositionY: Set<Int> = Set<Int>()
     var matrix: Array<Array<TetrisMapBlock>>!
+    var blockViewType:ViewType?
+    
     private var items = [TetrisItemView]()
     
     var itemViews:[TetrisItemView] {
         return items
     }
     
-    init(row: Int, col: Int, space: CGFloat, blockSize: CGSize, frame: CGRect) {
+    init(row: Int, col: Int, space: CGFloat, blockSize: CGSize, frame: CGRect, blockViewType: ViewType?) {
         self.col = col
         self.row = row
         self.space = space
         self.blockSize = blockSize
-        
+        self.blockViewType = blockViewType
         super.init(frame: frame)
         
         let colArray = Array<TetrisMapBlock>.init(repeating: TetrisMapBlock.init(state: .Empty, view: nil), count: col)
@@ -147,7 +154,7 @@ class TetrisMapView: UIView {
             for j in 0..<self.col {
                 let view = UIView.init(frame: CGRect.init(x: blockSize.width * CGFloat(i) + space * (CGFloat(i) - 1), y: blockSize.width * CGFloat(j) + space * (CGFloat(j) - 1), width: blockSize.width, height: blockSize.height))
                 view.backgroundColor = color
-                view.cornerRadius(4, borderWidth: 2, backgroundColor: .white, borderColor: .black)
+                self.blockViewType?(view)
                 // view.layer.shouldRasterize = true
                 views[i].append(view)
                 self.addSubview_(view)
