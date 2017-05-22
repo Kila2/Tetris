@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="GameOverViewController" customModule="Tetris" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="jZc-Zw-vmj" id="anL-vG-ECL"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="jZc-Zw-vmj">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Game Over" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wpM-TI-fws">
+                    <rect key="frame" x="144.5" y="92.5" width="86.5" height="20.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="6cg-2o-fOx">
+                    <rect key="frame" x="97.5" y="259" width="180" height="60"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9eu-CE-Zeg">
+                            <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                            <state key="normal" title="评价"/>
+                            <connections>
+                                <action selector="goToAppleStore:" destination="-1" eventType="touchUpInside" id="pST-C5-acw"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CGb-Gp-gha">
+                            <rect key="frame" x="60" y="0.0" width="60" height="60"/>
+                            <state key="normal" title="排行榜"/>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T68-Bx-PGa">
+                            <rect key="frame" x="120" y="0.0" width="60" height="60"/>
+                            <state key="normal" title="重新开始"/>
+                            <connections>
+                                <action selector="restart:" destination="-1" eventType="touchUpInside" id="grj-wP-1E1"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="60" id="n9c-zy-mAv"/>
+                        <constraint firstAttribute="width" constant="180" id="oFe-co-ElV"/>
+                    </constraints>
+                </stackView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="46H-hb-i26">
+                    <rect key="frame" x="172" y="374" width="31" height="30"/>
+                    <state key="normal" title="查看"/>
+                    <connections>
+                        <action selector="dismiss:" destination="-1" eventType="touchDown" id="Da5-4T-umw"/>
+                        <action selector="show:" destination="-1" eventType="touchUpInside" id="enk-7c-Hgd"/>
+                        <action selector="show:" destination="-1" eventType="touchUpOutside" id="lrB-49-Fgw"/>
+                    </connections>
+                </button>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hxJ-26-7St">
+                    <rect key="frame" x="67" y="136" width="240" height="85"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7PG-fm-Kg7">
+                            <rect key="frame" x="99.5" y="32.5" width="42.5" height="20.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" red="0.1406242251" green="0.63194692129999996" blue="0.61608612539999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstItem="7PG-fm-Kg7" firstAttribute="centerX" secondItem="hxJ-26-7St" secondAttribute="centerX" id="isK-04-0Wh"/>
+                        <constraint firstItem="7PG-fm-Kg7" firstAttribute="centerY" secondItem="hxJ-26-7St" secondAttribute="centerY" id="w9s-g3-q94"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="46H-hb-i26" firstAttribute="centerX" secondItem="6cg-2o-fOx" secondAttribute="centerX" id="1QI-4q-iaw"/>
+                <constraint firstItem="6cg-2o-fOx" firstAttribute="top" secondItem="wpM-TI-fws" secondAttribute="bottom" constant="146" id="7dE-mF-gTh"/>
+                <constraint firstItem="6cg-2o-fOx" firstAttribute="centerX" secondItem="wpM-TI-fws" secondAttribute="centerX" id="BZx-4t-VPE"/>
+                <constraint firstItem="6cg-2o-fOx" firstAttribute="top" secondItem="hxJ-26-7St" secondAttribute="bottom" constant="38" id="Bnh-pa-jh8"/>
+                <constraint firstItem="wpM-TI-fws" firstAttribute="centerX" secondItem="jZc-Zw-vmj" secondAttribute="centerX" id="LPS-DJ-tbl"/>
+                <constraint firstItem="46H-hb-i26" firstAttribute="top" secondItem="6cg-2o-fOx" secondAttribute="bottom" constant="55" id="LRj-tD-t7J"/>
+                <constraint firstAttribute="trailing" secondItem="hxJ-26-7St" secondAttribute="trailing" constant="68" id="MTe-pu-PJs"/>
+                <constraint firstItem="hxJ-26-7St" firstAttribute="top" secondItem="wpM-TI-fws" secondAttribute="bottom" constant="23" id="SQK-Fz-iAA"/>
+                <constraint firstItem="hxJ-26-7St" firstAttribute="leading" secondItem="jZc-Zw-vmj" secondAttribute="leading" constant="67" id="Z2U-sF-aim"/>
+                <constraint firstItem="wpM-TI-fws" firstAttribute="centerY" secondItem="jZc-Zw-vmj" secondAttribute="centerY" constant="-231" id="aeY-g2-q6P"/>
+            </constraints>
+            <point key="canvasLocation" x="33.5" y="76.5"/>
+        </view>
+    </objects>
+</document>

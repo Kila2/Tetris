@@ -100,12 +100,16 @@ struct TetrisMapBlock {
 class TetrisMapView: UIView {
     let col: Int!
     let row: Int!
-    var matrix: Array<Array<TetrisMapBlock>>!
     let space: CGFloat!
     var blockSize: CGSize!
-    
     var lastAddPositionX: Set<Int> = Set<Int>()
     var lastAddPositionY: Set<Int> = Set<Int>()
+    var matrix: Array<Array<TetrisMapBlock>>!
+    private var items = [TetrisItemView]()
+    
+    var itemViews:[TetrisItemView] {
+        return items
+    }
     
     init(row: Int, col: Int, space: CGFloat, blockSize: CGSize, frame: CGRect) {
         self.col = col
@@ -124,6 +128,14 @@ class TetrisMapView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func addSubview(_ view: UIView) {
+        assert(false, "addSubView can not be call")
+//        super.addSubview(view)
+    }
+    private func addSubview_(_ view: UIView) {
+        super.addSubview(view)
+    }
+    
     func drawMap() -> [[UIView]] {
         self.backgroundColor = Global.mainBackgroundColor
         
@@ -138,7 +150,7 @@ class TetrisMapView: UIView {
                 view.cornerRadius(4, borderWidth: 2, backgroundColor: .white, borderColor: .black)
                 // view.layer.shouldRasterize = true
                 views[i].append(view)
-                self.addSubview(view)
+                self.addSubview_(view)
             }
         }
         return views
@@ -151,6 +163,7 @@ class TetrisMapView: UIView {
     func getY(_ y: Int) -> CGFloat {
         return CGFloat(y) * (self.blockSize.width + self.space)
     }
+    
     func canPlace(shape: TetrisItemView, point: CGPoint) -> Bool {
         let positionx = Int(point.x)
         let positiony = Int(point.y)
@@ -174,7 +187,9 @@ class TetrisMapView: UIView {
         
         shape.frame.origin.x = self.getX(positionx)
         shape.frame.origin.y = self.getY(positiony)
-        self.addSubview(shape)
+        shape.point = point
+        self.addSubview_(shape)
+        self.items.append(shape)
         
         lastAddPositionX.removeAll()
         lastAddPositionY.removeAll()
@@ -206,13 +221,26 @@ class TetrisMapView: UIView {
             if cleanLine {
                 // 移除view 清空tetrisMapView矩阵
                 print("remove")
+                let time = DispatchTime.now()
+            
                 for i in 0..<self.matrix.count {
-                    let sv = self.matrix[x][i].view?.superview
-                    self.matrix[x][i].view?.removeFromSuperview()
-                    self.matrix[x][i].state = .Empty
-                    if sv?.subviews.count == 0 {
-                        sv?.removeFromSuperview()
-                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: time + DispatchTimeInterval.milliseconds(50*i), execute: {
+                        let sv = self.matrix[x][i].view?.superview
+                        if let blockView = self.matrix[x][i].view {
+                            blockView.removeFromSuperview()
+                            self.matrix[x][i].view = nil
+                            GameViewController.scoreValueChanged(value: 10)
+                        }
+                        self.matrix[x][i].state = .Empty
+                        if sv?.subviews.count == 0 {
+                            sv?.removeFromSuperview()
+                            let index = self.items.index(where: { (iv) -> Bool in
+                                iv == sv
+                            })!
+                            self.items.remove(at: index)
+                        }
+                    })
                 }
             }
         }
@@ -229,18 +257,65 @@ class TetrisMapView: UIView {
             if cleanLine {
                 // 移除view 清空tetrisMapView矩阵
                 print("remove")
+                let time = DispatchTime.now()
+                
                 for i in 0..<self.matrix[0].count {
-                    let sv = self.matrix[i][y].view?.superview
-                    self.matrix[i][y].view?.removeFromSuperview()
-                    self.matrix[i][y].state = .Empty
-                    if sv?.subviews.count == 0 {
-                        sv?.removeFromSuperview()
-                    }
+                    DispatchQueue.main.asyncAfter(deadline: time + DispatchTimeInterval.milliseconds(50*i), execute: {
+                        let sv = self.matrix[i][y].view?.superview
+                        if let blockView = self.matrix[i][y].view {
+                            blockView.removeFromSuperview()
+                            self.matrix[i][y].view = nil
+                            GameViewController.scoreValueChanged(value: 10)
+                        }
+                        self.matrix[i][y].state = .Empty
+                        if sv?.subviews.count == 0 {
+                            sv?.removeFromSuperview()
+                            let index = self.items.index(where: { (iv) -> Bool in
+                                iv == sv
+                            })!
+                            self.items.remove(at: index)
+                        }
+                    })
                 }
                 
             }
         }
     }
     
-       
+
+    func remove(_ itemView:TetrisItemView) {
+        itemView.removeFromSuperview()
+        // 清空item手势
+        for gest in itemView.gestureRecognizers! {
+            itemView.removeGestureRecognizer(gest)
+        }
+        // 清空tetrisBoxView矩阵
+//        let originNumx = lroundf(Float(((self.originFrame.minX) / (self.tetrisBoxView.blockSize.width + self.tetrisBoxView.space))))
+//        let originNumy = lroundf(Float(((self.originFrame.minY) / (self.tetrisBoxView.blockSize.height + self.tetrisBoxView.space))))
+        for blockview in itemView.subviews {
+            let bvc = blockview as! TetrisItemBlockView
+            let x = bvc.tetrisPoint.x
+            let y = bvc.tetrisPoint.y
+            assert(itemView.point != nil, "itemview.point is nil")
+            self.matrix[itemView.point!.x + x][itemView.point!.y + y].state = .Empty
+        }
+
+        let index = self.items.index(where: { (iv) -> Bool in
+            iv == itemView
+        })
+        
+        assert(index != nil, "removed index is null")
+        self.items.remove(at: index!)
+        
+    }
+    
+    func clean() {
+        for subview in items {
+            subview.removeFromSuperview()
+        }
+        self.items.removeAll()
+        let colArray = Array<TetrisMapBlock>.init(repeating: TetrisMapBlock.init(state: .Empty, view: nil), count: col)
+        self.matrix = Array<Array<TetrisMapBlock>>.init(repeating: colArray, count: row)
+    }
+    
 }

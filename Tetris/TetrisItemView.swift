@@ -70,26 +70,10 @@ enum TetrisItemEnum: Int {
             return .white
         }
     }
-    
+   
     static let allValues = [S, Z, L, J, I, O, T, I4, I2, O1]
 }
 
-struct TetrisPoint {
-    var x: Int
-    var y: Int
-}
-class TetrisItemBlockView: UIView {
-    var tetrisPoint: TetrisPoint!
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
 
 extension TetrisItemView {
     
@@ -98,6 +82,7 @@ extension TetrisItemView {
         let count = TetrisItemEnum.allValues.count
         let value = arc4random_uniform(UInt32(count))
         let item = TetrisItemEnum.init(rawValue: Int(value))
+//        let item:TetrisItemEnum! = TetrisItemEnum.O
         let view = makeTetrisItem(box: item!)
         // view.backgroundColor = .black
         var minx: Int = 0
@@ -181,6 +166,8 @@ extension TetrisItemView {
 }
 
 class TetrisItemView: UIView {
+    var point:TetrisPoint?
+    
     var subviewPoints: [TetrisPoint] {
         var points = [TetrisPoint]()
         for view in self.subviews {
